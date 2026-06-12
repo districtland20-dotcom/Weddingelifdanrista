@@ -769,11 +769,31 @@
 
         function submitRsvp(event) {
             event.preventDefault();
+        
             const nama = document.getElementById('nama').value;
             const kehadiran = document.getElementById('kehadiran').value;
             const jumlah = document.getElementById('jumlah').value;
-            
+        
+            // Tampilkan alert (Opsional)
             alert(`Terima kasih konfirmasinya, ${nama}! Status: ${kehadiran} (${jumlah} orang).`);
+        
+            // Ganti dengan nomor WhatsApp tujuan Anda 
+            // (Gunakan format internasional tanpa simbol +, contoh: 628123456789)
+            const nomorWhatsApp = '6285751353052'; 
+        
+            // Format teks pesan WhatsApp
+            const pesan = `Halo, saya ingin melakukan konfirmasi RSVP:\n\n` +
+                          `*Nama:* ${nama}\n` +
+                          `*Kehadiran:* ${kehadiran}\n` +
+                          `*Jumlah:* ${jumlah} orang`;
+        
+            // Buat URL pengalihan WhatsApp
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${nomorWhatsApp}&text=${encodeURIComponent(pesan)}`;
+        
+            // Buka WhatsApp di tab baru
+            window.open(urlWhatsApp, '_blank');
+        
+            // Reset form setelah selesai
             document.getElementById('form-rsvp').reset();
         }
 
