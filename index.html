@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <head>
-    <meta property="og:title" content="THE WEDDING OFF ELIF & RISTA" />
+    <meta property="og:title" content="THE WEDDING OF ELIF & RISTA" />
     <meta property="og:description" content="JUMAT, 26 JUNI 2026" />
     <meta property="og:image" content="background.jpg" />
     <meta property="og:url" content="https://weddingelifdanrista.vercel.app/" />
     <meta property="og:type" content="website" />
-</head>
     <title>Undangan Pernikahan</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +64,7 @@
         /* Kelas untuk dipaksa animasi saat menu diklik */
         .force-animate {
             animation: fadeIn 1s ease-in-out forwards !important;
+            opacity: 0;
         }
 
         /* Halaman Sampul (Buka Undangan) */
@@ -416,6 +415,59 @@
             color: var(--white);
         }
 
+        /* 8. Ucapan & Doa (Guestbook) */
+        .ucapan-container {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-ucapan {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .ucapan-list-wrapper {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .ucapan-card {
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: left;
+            border-left: 4px solid var(--sage-primary);
+        }
+
+        .ucapan-card .nama-pengirim {
+            font-weight: 700;
+            color: var(--sage-dark);
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .ucapan-card .waktu-kirim {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .ucapan-card .pesan-teks {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
         /* Floating Music Control */
         .music-control {
             position: fixed;
@@ -510,7 +562,7 @@
             }
             .bottom-nav {
                 justify-content: center;
-                gap: 40px;
+                gap: 30px;
             }
             .music-control {
                 bottom: 100px;
@@ -542,12 +594,11 @@
     </div>
 
     <div class="lightbox-overlay" id="lightbox" onclick="tutupLightbox()">
-        <span class="lightbox-close">&times;</span>
+        <span class="lightbox-close">×</span>
         <img class="lightbox-content" id="lightbox-img" alt="Perbesar Momen">
     </div>
 
     <section id="salam" class="animate-section">
-        <!-- <h2 class="section-title" style="font-size: 3rem;">Assalamu'alaikum Wr. Wb.</h2> -->
         <p style="font-family: 'Dancing', cursive; max-width: 600px; line-height: 1.8; font-size: 1.1rem; opacity: 0.7; ">
             <i>
             "Sebab itu seorang laki-laki akan meninggalkan ayahnya dan ibunya dan bersatu dengan istrinya, sehingga keduanya menjadi satu daging."
@@ -636,6 +687,22 @@
         </form>
     </section>
 
+    <section id="ucapan" class="animate-section">
+        <h2 class="section-title">Ucapan & Doa</h2>
+        <p>Tuliskan ucapan selamat dan doa terbaik untuk kedua mempelai.</p>
+        
+        <div class="ucapan-container">
+            <form class="form-ucapan" onsubmit="submitUcapan(event)">
+                <input type="text" id="nama-ucapan" placeholder="Nama Anda" required>
+                <textarea id="pesan-ucapan" rows="3" placeholder="Tulis ucapan atau doa..." required></textarea>
+                <button type="submit">Kirim Ucapan</button>
+            </form>
+            
+            <div class="ucapan-list-wrapper" id="list-ucapan">
+                </div>
+        </div>
+    </section>
+
     <section id="gift" class="animate-section">
         <h2 class="section-title">Digital Gift</h2>
         <p style="max-width: 500px;">Bagi keluarga dan sahabat yang ingin memberikan tanda kasih kepada kedua mempelai, dapat melalui nomor rekening di bawah ini:</p>
@@ -656,7 +723,6 @@
             <br>
             <button class="btn-salin" onclick="salinNoRek('1460016862000')">Salin Nomor Rekening</button>
         </div>
-
         
         <footer style="text-align: center;">
             <p>© 2026 The Wedding Of Elif & Rista. By @districtlandproject .</p>
@@ -670,6 +736,7 @@
         <a href="#lokasi" class="nav-item" onclick="handleNavClick(this, event)"><i class="fa-solid fa-location-dot"></i><span>Lokasi</span></a>
         <a href="#moment" class="nav-item" onclick="handleNavClick(this, event)"><i class="fa-regular fa-images"></i><span>Momen</span></a>
         <a href="#rsvp" class="nav-item" onclick="handleNavClick(this, event)"><i class="fa-regular fa-envelope"></i><span>RSVP</span></a>
+        <a href="#ucapan" class="nav-item" onclick="handleNavClick(this, event)"><i class="fa-regular fa-comment"></i><span>Ucapan</span></a>
         <a href="#gift" class="nav-item" onclick="handleNavClick(this, event)"><i class="fa-solid fa-gift"></i><span>Gift</span></a>
     </nav>
 
@@ -683,6 +750,9 @@
                 const cleanName = decodeURIComponent(guestName.replace(/\+/g, ' '));
                 document.getElementById('nama-tamu').innerText = cleanName;
             }
+            
+            // Muat ucapan saat pertama dibuka
+            tampilkanUcapan();
         });
 
         const audio = document.getElementById('bg-audio');
@@ -774,28 +844,70 @@
             const kehadiran = document.getElementById('kehadiran').value;
             const jumlah = document.getElementById('jumlah').value;
         
-            // Tampilkan alert (Opsional)
             alert(`Terima kasih konfirmasinya, ${nama}! Status: ${kehadiran} (${jumlah} orang).`);
         
-            // Ganti dengan nomor WhatsApp tujuan Anda 
-            // (Gunakan format internasional tanpa simbol +, contoh: 628123456789)
             const nomorWhatsApp = '6285751353052'; 
-        
-            // Format teks pesan WhatsApp
             const pesan = `Halo, saya ingin melakukan konfirmasi RSVP:\n\n` +
                           `*Nama:* ${nama}\n` +
                           `*Kehadiran:* ${kehadiran}\n` +
                           `*Jumlah:* ${jumlah} orang`;
         
-            // Buat URL pengalihan WhatsApp
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${nomorWhatsApp}&text=${encodeURIComponent(pesan)}`;
-        
-            // Buka WhatsApp di tab baru
             window.open(urlWhatsApp, '_blank');
-        
-            // Reset form setelah selesai
             document.getElementById('form-rsvp').reset();
         }
+
+        // --- FUNGSI UCAPAN & DOA ---
+        function tampilkanUcapan() {
+            let daftarUcapan = JSON.parse(localStorage.getItem('daftarUcapan')) || [];
+            const listContainer = document.getElementById('list-ucapan');
+            
+            listContainer.innerHTML = ''; // Kosongkan kontainer terlebih dahulu
+            
+            // Tampilkan dari data terbaru (dibalik)
+            daftarUcapan.reverse().forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'ucapan-card';
+                card.innerHTML = `
+                    <div class="nama-pengirim"><i class="fa-regular fa-user" style="margin-right: 6px;"></i> ${escapeHtml(item.nama)}</div>
+                    <div class="waktu-kirim"><i class="fa-regular fa-clock"></i> ${item.waktu}</div>
+                    <div class="pesan-teks">"${escapeHtml(item.pesan)}"</div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function submitUcapan(event) {
+            event.preventDefault();
+            
+            const nama = document.getElementById('nama-ucapan').value;
+            const pesan = document.getElementById('pesan-ucapan').value;
+            
+            // Ambil waktu saat ini
+            const date = new Date();
+            const waktuStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' | ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            const newUcapan = {
+                nama: nama,
+                pesan: pesan,
+                waktu: waktuStr
+            };
+            
+            // Ampan simpan ke localstorage
+            let daftarUcapan = JSON.parse(localStorage.getItem('daftarUcapan')) || [];
+            daftarUcapan.push(newUcapan);
+            localStorage.setItem('daftarUcapan', JSON.stringify(daftarUcapan));
+            
+            // Reset form dan muat ulang list ucapan
+            document.querySelector('.form-ucapan').reset();
+            tampilkanUcapan();
+        }
+
+        // Fungsi pembantu untuk mencegah script injection di dalam teks HTML
+        function escapeHtml(string) {
+            return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        // ---------------------------
 
         let isScrolling;
         const navbar = document.getElementById('navbar-bottom');
