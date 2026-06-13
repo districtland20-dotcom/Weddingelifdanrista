@@ -692,8 +692,10 @@
         <div class="ucapan-container">
             <!-- Form Pengisian -->
             <form class="form-ucapan" id="form-ucapan">
-                <input type="text" id="nama-ucapan" placeholder="Nama Anda" required>
-                <textarea id="pesan-ucapan" rows="3" placeholder="Tulis ucapan atau doa..." required></textarea>
+                <!-- Tambahkan name="nama" -->
+                <input type="text" id="nama-ucapan" name="nama" placeholder="Nama Anda" required>
+                <!-- Tambahkan name="ucapan" -->
+                <textarea id="pesan-ucapan" name="ucapan" rows="3" placeholder="Tulis ucapan atau doa..." required></textarea>
                 <button type="submit" id="btn-submit">Kirim Ucapan</button>
             </form>
     
