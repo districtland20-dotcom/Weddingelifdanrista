@@ -431,6 +431,7 @@
             margin: 0;
         }
 
+        /* Sembunyikan scrollbar untuk tampilan lebih rapi */
         .ucapan-list-wrapper {
             width: 100%;
             max-height: 400px;
@@ -439,8 +440,11 @@
             flex-direction: column;
             gap: 15px;
             padding: 10px 0;
+            scrollbar-width: none; /* Firefox */
         }
-
+        .ucapan-list-wrapper::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
         .ucapan-card {
             background: var(--white);
             padding: 15px 20px;
@@ -884,8 +888,10 @@
             const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3'; // GANTI DENGAN URL ANDA
     
         // Fungsi untuk memuat ucapan
+        let autoScrollInterval;
+        const listContainer = document.getElementById('list-ucapan');
+        
         function loadUcapan() {
-            const listContainer = document.getElementById('list-ucapan');
             fetch(API_URL)
                 .then(response => response.json())
                 .then(data => {
@@ -894,7 +900,9 @@
                         listContainer.innerHTML = '<p>Belum ada ucapan.</p>';
                         return;
                     }
-                    data.reverse().forEach(item => {
+                    // Tambahkan data dua kali lipat untuk efek looping yang mulus
+                    const doubledData = [...data, ...data]; 
+                    doubledData.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'ucapan-card';
                         card.innerHTML = `
@@ -904,12 +912,32 @@
                         `;
                         listContainer.appendChild(card);
                     });
+                    startAutoScroll();
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     listContainer.innerHTML = '<p>Gagal memuat ucapan.</p>';
                 });
         }
+        
+        function startAutoScroll() {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = setInterval(() => {
+                if (listContainer.scrollTop + listContainer.clientHeight >= listContainer.scrollHeight - 10) {
+                    listContainer.scrollTop = 0; // Reset ke atas jika sampai bawah
+                } else {
+                    listContainer.scrollTop += 1; // Kecepatan scroll
+                }
+            }, 50); // Kecepatan interval
+        }
+        
+        // Berhenti jika user mencoba scroll manual
+        listContainer.addEventListener('mouseover', () => clearInterval(autoScrollInterval));
+        listContainer.addEventListener('touchstart', () => clearInterval(autoScrollInterval));
+        
+        // Mulai lagi jika user berhenti scroll (opsional, setelah 2 detik)
+        listContainer.addEventListener('mouseleave', () => startAutoScroll());
+        listContainer.addEventListener('touchend', () => setTimeout(startAutoScroll, 2000));
     
         // Fungsi Submit Form
         document.getElementById('form-ucapan').addEventListener('submit', function(e) {
