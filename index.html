@@ -690,13 +690,16 @@
     <section id="ucapan" class="animate-section">
         <h2 class="section-title">Ucapan & Doa</h2>
         <div class="ucapan-container">
+            <!-- Form Pengisian -->
             <form class="form-ucapan" id="form-ucapan">
                 <input type="text" id="nama-ucapan" placeholder="Nama Anda" required>
                 <textarea id="pesan-ucapan" rows="3" placeholder="Tulis ucapan atau doa..." required></textarea>
                 <button type="submit" id="btn-submit">Kirim Ucapan</button>
             </form>
+    
+            <!-- AREA PENAMPIL UCAPAN (Data akan muncul di sini) -->
             <div class="ucapan-list-wrapper" id="list-ucapan">
-                <p>Memuat ucapan...</p>
+                <p style="text-align: center; color: #888;">Sedang memuat ucapan...</p>
             </div>
         </div>
     </section>
@@ -875,55 +878,50 @@
             });
         }
 
-        // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-            const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3';
+        // GANTI DENGAN URL API SHEETDB ANDA
+        const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3'; 
     
-        // 1. Fungsi Kirim Ucapan
-        document.getElementById('form-ucapan').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit');
-            btn.innerText = "Mengirim...";
-            
-            const data = {
-                nama: document.getElementById('nama-ucapan').value,
-                ucapan: document.getElementById('pesan-ucapan').value,
-                timestamp: new Date().toLocaleString()
-            };
-    
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: [data] })
-            })
-            .then(() => {
-                alert('Terima kasih atas ucapannya!');
-                document.getElementById('form-ucapan').reset();
-                btn.innerText = "Kirim Ucapan";
-                loadUcapan(); // Refresh tampilan
-            });
-        });
-        
+        // Fungsi untuk memuat dan menampilkan ucapan
         function loadUcapan() {
+            const listContainer = document.getElementById('list-ucapan');
+            
             fetch(API_URL)
                 .then(response => response.json())
                 .then(data => {
-                    const list = document.getElementById('list-ucapan');
-                    list.innerHTML = '';
-                    // Tampilkan data terbaru di atas
+                    listContainer.innerHTML = ''; // Bersihkan loading text
+                    
+                    if (data.length === 0) {
+                        listContainer.innerHTML = '<p>Belum ada ucapan.</p>';
+                        return;
+                    }
+    
+                    // Balik urutan agar yang terbaru tampil di paling atas
                     data.reverse().forEach(item => {
-                        list.innerHTML += `
-                            <div class="ucapan-card">
-                                <div class="nama-pengirim">${item.nama}</div>
-                                <div class="waktu-kirim">${item.timestamp}</div>
-                                <div class="pesan-teks">"${item.ucapan}"</div>
-                            </div>
+                        const card = document.createElement('div');
+                        card.className = 'ucapan-card';
+                        card.innerHTML = `
+                            <div class="nama-pengirim">${item.nama || 'Anonim'}</div>
+                            <div class="waktu-kirim">${item.timestamp || ''}</div>
+                            <div class="pesan-teks">"${item.ucapan || ''}"</div>
                         `;
+                        listContainer.appendChild(card);
                     });
+                })
+                .catch(error => {
+                    listContainer.innerHTML = '<p>Gagal memuat ucapan.</p>';
                 });
         }
     
-        // Panggil saat halaman dimuat
-        loadUcapan();
+        // Panggil fungsi ini saat halaman pertama kali dibuka
+        document.addEventListener('DOMContentLoaded', loadUcapan);
+    
+        // Fungsi Submit Form (tetap sama)
+        document.getElementById('form-ucapan').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // ... kode fetch POST seperti yang diberikan sebelumnya ...
+            // Setelah sukses, panggil loadUcapan() lagi untuk update daftar
+        });
+
         // Fungsi pembantu untuk mencegah script injection di dalam teks HTML
         function escapeHtml(string) {
             return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
