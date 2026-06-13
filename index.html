@@ -879,48 +879,73 @@
         }
 
         // GANTI DENGAN URL API SHEETDB ANDA
-        const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3'; 
+            const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3'; // GANTI DENGAN URL ANDA
     
-        // Fungsi untuk memuat dan menampilkan ucapan
+        // Fungsi untuk memuat ucapan
         function loadUcapan() {
             const listContainer = document.getElementById('list-ucapan');
-            
             fetch(API_URL)
                 .then(response => response.json())
                 .then(data => {
-                    listContainer.innerHTML = ''; // Bersihkan loading text
-                    
+                    listContainer.innerHTML = '';
                     if (data.length === 0) {
                         listContainer.innerHTML = '<p>Belum ada ucapan.</p>';
                         return;
                     }
-    
-                    // Balik urutan agar yang terbaru tampil di paling atas
                     data.reverse().forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'ucapan-card';
                         card.innerHTML = `
-                            <div class="nama-pengirim">${item.nama || 'Anonim'}</div>
-                            <div class="waktu-kirim">${item.timestamp || ''}</div>
-                            <div class="pesan-teks">"${item.ucapan || ''}"</div>
+                            <div class="nama-pengirim"><strong>${item.nama || 'Anonim'}</strong></div>
+                            <div class="waktu-kirim" style="font-size: 0.8em; color: gray;">${item.timestamp || new Date().toLocaleString()}</div>
+                            <div class="pesan-teks" style="margin-top: 10px;">"${item.ucapan || ''}"</div>
                         `;
                         listContainer.appendChild(card);
                     });
                 })
                 .catch(error => {
+                    console.error('Error:', error);
                     listContainer.innerHTML = '<p>Gagal memuat ucapan.</p>';
                 });
         }
     
-        // Panggil fungsi ini saat halaman pertama kali dibuka
-        document.addEventListener('DOMContentLoaded', loadUcapan);
-    
-        // Fungsi Submit Form (tetap sama)
+        // Fungsi Submit Form
         document.getElementById('form-ucapan').addEventListener('submit', function(e) {
             e.preventDefault();
-            // ... kode fetch POST seperti yang diberikan sebelumnya ...
-            // Setelah sukses, panggil loadUcapan() lagi untuk update daftar
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true; // Mencegah klik ganda
+            submitBtn.innerText = 'Mengirim...';
+    
+            const formData = new FormData(form);
+            
+            // Menambahkan timestamp otomatis jika tidak ada di form
+            if (!formData.has('timestamp')) {
+                formData.append('timestamp', new Date().toLocaleString());
+            }
+    
+            fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Ucapan berhasil dikirim!');
+                form.reset(); // Mengosongkan form
+                loadUcapan(); // Memuat ulang daftar ucapan
+            })
+            .catch(error => {
+                alert('Gagal mengirim ucapan, silakan coba lagi.');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Kirim Ucapan';
+            });
         });
+    
+        document.addEventListener('DOMContentLoaded', loadUcapan);
 
         // Fungsi pembantu untuk mencegah script injection di dalam teks HTML
         function escapeHtml(string) {
