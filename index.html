@@ -689,17 +689,15 @@
 
     <section id="ucapan" class="animate-section">
         <h2 class="section-title">Ucapan & Doa</h2>
-        <p>Tuliskan ucapan selamat dan doa terbaik untuk kedua mempelai.</p>
-        
         <div class="ucapan-container">
-            <form class="form-ucapan" onsubmit="submitUcapan(event)">
+            <form class="form-ucapan" id="form-ucapan">
                 <input type="text" id="nama-ucapan" placeholder="Nama Anda" required>
                 <textarea id="pesan-ucapan" rows="3" placeholder="Tulis ucapan atau doa..." required></textarea>
-                <button type="submit">Kirim Ucapan</button>
+                <button type="submit" id="btn-submit">Kirim Ucapan</button>
             </form>
-            
             <div class="ucapan-list-wrapper" id="list-ucapan">
-                </div>
+                <p>Memuat ucapan...</p>
+            </div>
         </div>
     </section>
 
@@ -878,30 +876,54 @@
         }
 
         // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvGZwVTqnNYTDUYJ1SiHpvc6g6WmTgU0HBKMAX_1N2YR08dwGHLHqZX3-5LfBCQCB6/exec';
-        
-        function submitUcapan(event) {
-            event.preventDefault();
-            const nama = document.getElementById('nama-ucapan').value;
-            const pesan = document.getElementById('pesan-ucapan').value;
-        
-            fetch(GOOGLE_SCRIPT_URL, {
+            const API_URL = 'https://sheetdb.io/api/v1/211zzldheerq3';
+    
+        // 1. Fungsi Kirim Ucapan
+        document.getElementById('form-ucapan').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            btn.innerText = "Mengirim...";
+            
+            const data = {
+                nama: document.getElementById('nama-ucapan').value,
+                ucapan: document.getElementById('pesan-ucapan').value,
+                timestamp: new Date().toLocaleString()
+            };
+    
+            fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify({ nama: nama, ucapan: pesan })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: [data] })
             })
             .then(() => {
                 alert('Terima kasih atas ucapannya!');
-                document.querySelector('.form-ucapan').reset();
+                document.getElementById('form-ucapan').reset();
+                btn.innerText = "Kirim Ucapan";
                 loadUcapan(); // Refresh tampilan
             });
-        }
+        });
         
         function loadUcapan() {
-            // Untuk menampilkan data dari Google Sheets, Anda butuh mempublikasikan 
-            // Sheets tersebut sebagai JSON atau menggunakan cara API yang lebih kompleks.
-            // Tips: Jika ingin mudah, gunakan layanan seperti "SheetDB" atau "Sheety" 
-            // yang mengubah Google Sheets menjadi API otomatis.
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('list-ucapan');
+                    list.innerHTML = '';
+                    // Tampilkan data terbaru di atas
+                    data.reverse().forEach(item => {
+                        list.innerHTML += `
+                            <div class="ucapan-card">
+                                <div class="nama-pengirim">${item.nama}</div>
+                                <div class="waktu-kirim">${item.timestamp}</div>
+                                <div class="pesan-teks">"${item.ucapan}"</div>
+                            </div>
+                        `;
+                    });
+                });
         }
+    
+        // Panggil saat halaman dimuat
+        loadUcapan();
         // Fungsi pembantu untuk mencegah script injection di dalam teks HTML
         function escapeHtml(string) {
             return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
