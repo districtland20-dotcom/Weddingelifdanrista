@@ -877,32 +877,31 @@
             });
         }
 
+        // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvGZwVTqnNYTDUYJ1SiHpvc6g6WmTgU0HBKMAX_1N2YR08dwGHLHqZX3-5LfBCQCB6/exec';
+        
         function submitUcapan(event) {
             event.preventDefault();
-            
             const nama = document.getElementById('nama-ucapan').value;
             const pesan = document.getElementById('pesan-ucapan').value;
-            
-            // Ambil waktu saat ini
-            const date = new Date();
-            const waktuStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' | ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            
-            const newUcapan = {
-                nama: nama,
-                pesan: pesan,
-                waktu: waktuStr
-            };
-            
-            // Ampan simpan ke localstorage
-            let daftarUcapan = JSON.parse(localStorage.getItem('daftarUcapan')) || [];
-            daftarUcapan.push(newUcapan);
-            localStorage.setItem('daftarUcapan', JSON.stringify(daftarUcapan));
-            
-            // Reset form dan muat ulang list ucapan
-            document.querySelector('.form-ucapan').reset();
-            tampilkanUcapan();
+        
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ nama: nama, ucapan: pesan })
+            })
+            .then(() => {
+                alert('Terima kasih atas ucapannya!');
+                document.querySelector('.form-ucapan').reset();
+                loadUcapan(); // Refresh tampilan
+            });
         }
-
+        
+        function loadUcapan() {
+            // Untuk menampilkan data dari Google Sheets, Anda butuh mempublikasikan 
+            // Sheets tersebut sebagai JSON atau menggunakan cara API yang lebih kompleks.
+            // Tips: Jika ingin mudah, gunakan layanan seperti "SheetDB" atau "Sheety" 
+            // yang mengubah Google Sheets menjadi API otomatis.
+        }
         // Fungsi pembantu untuk mencegah script injection di dalam teks HTML
         function escapeHtml(string) {
             return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
